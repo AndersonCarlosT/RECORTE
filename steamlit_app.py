@@ -6,7 +6,7 @@ import io
 zonas_predefinidas = {
     "1 Fila": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
     "2 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 510},
-    "3 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 535},
+    "3 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 533},
     "4 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 555},
     "5 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 578},
 }
