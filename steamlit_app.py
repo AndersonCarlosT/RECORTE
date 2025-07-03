@@ -4,7 +4,7 @@ import io
 
 # Diccionario de zonas predefinidas
 zonas_predefinidas = {
-    "Zona 1": {"left": 10, "top": 10, "right": 200, "bottom": 200},
+    "Zona 1": {"left": 30, "top": 10, "right": 200, "bottom": 200},
     "Zona 2": {"left": 100, "top": 100, "right": 400, "bottom": 350},
     "Zona 3": {"left": 10, "top": 10, "right": 200, "bottom": 200},
 }
