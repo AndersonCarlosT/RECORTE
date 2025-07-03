@@ -18,25 +18,21 @@ if uploaded_file:
     image = Image.open(uploaded_file)
     st.image(image, caption="Imagen original", use_container_width=True)
 
-    # Seleccionar zona predefinida
-    zona_seleccionada = st.selectbox("Selecciona la zona a recortar", list(zonas.keys()))
-    coords = zonas[zona_seleccionada]
+    zona_seleccionada = st.selectbox("Selecciona la zona a recortar", list(zonas_predefinidas.keys()))
+    coords = zonas_predefinidas[zona_seleccionada]
 
-    st.write(f"Coordenadas del recorte: {coords}")
+    # Recortar automáticamente al cambiar la zona
+    cropped_image = image.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
+    st.image(cropped_image, caption=f"Recorte: {zona_seleccionada}", use_container_width=True)
 
-    # Botón para recortar
-    if st.button("Recortar imagen"):
-        cropped_image = image.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
-        st.image(cropped_image, caption=f"Recorte: {zona_seleccionada}", use_column_width=True)
+    # Botón para descargar
+    img_byte_arr = io.BytesIO()
+    cropped_image.save(img_byte_arr, format='PNG')
+    img_byte_arr = img_byte_arr.getvalue()
 
-        # Preparar para descargar
-        img_byte_arr = io.BytesIO()
-        cropped_image.save(img_byte_arr, format='PNG')
-        img_byte_arr = img_byte_arr.getvalue()
-
-        st.download_button(
-            label="Descargar imagen recortada",
-            data=img_byte_arr,
-            file_name=f"{zona_seleccionada.lower().replace(' ', '_')}.png",
-            mime="image/png"
-        )
+    st.download_button(
+        label="Descargar imagen recortada",
+        data=img_byte_arr,
+        file_name=f"{zona_seleccionada.lower().replace(' ', '_')}.png",
+        mime="image/png"
+    )
