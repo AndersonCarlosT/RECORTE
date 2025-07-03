@@ -2,50 +2,47 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageEnhance
 import io
 
-# Diccionario de zonas predefinidas
+# Zonas predefinidas
 zonas_predefinidas = {
-    "1 Fila": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
-    "2 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 510},
-    "3 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 533},
-    "4 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 555},
-    "5 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 578},
+    "Zona 1": {"left": 50, "top": 50, "right": 300, "bottom": 300},
+    "Zona 2": {"left": 100, "top": 100, "right": 400, "bottom": 350},
+    "Zona 3": {"left": 10, "top": 10, "right": 200, "bottom": 200},
 }
 
-st.title("Visualizador de Zonas Recortadas")
+st.title("Recorte por zonas en múltiples imágenes")
 
-# Subir imagen
-uploaded_file = st.file_uploader("Sube una imagen", type=["png", "jpg", "jpeg"])
+# Subir varias imágenes
+uploaded_files = st.file_uploader("Sube una o más imágenes", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
-if uploaded_file:
-    image = Image.open(uploaded_file).convert("RGBA")  # Aseguramos canal alfa
+if uploaded_files:
     zona_seleccionada = st.selectbox("Selecciona una zona", list(zonas_predefinidas.keys()))
     coords = zonas_predefinidas[zona_seleccionada]
 
-    # Crear una copia oscurecida de la imagen
-    enhancer = ImageEnhance.Brightness(image)
-    darkened = enhancer.enhance(0.3)
+    for idx, uploaded_file in enumerate(uploaded_files):
+        st.markdown(f"---\n### Imagen {idx + 1}: {uploaded_file.name}")
+        image = Image.open(uploaded_file).convert("RGBA")
 
-    # Crear una máscara en blanco y negro donde la zona recortada es blanca (visible)
-    mask = Image.new("L", image.size, 0)
-    draw = ImageDraw.Draw(mask)
-    draw.rectangle((coords["left"], coords["top"], coords["right"], coords["bottom"]), fill=255)
+        # Crear imagen con zona resaltada
+        enhancer = ImageEnhance.Brightness(image)
+        darkened = enhancer.enhance(0.3)
 
-    # Combinar imagen original y fondo oscuro usando la máscara
-    result = Image.composite(image, darkened, mask)
+        mask = Image.new("L", image.size, 0)
+        draw = ImageDraw.Draw(mask)
+        draw.rectangle((coords["left"], coords["top"], coords["right"], coords["bottom"]), fill=255)
 
-    st.image(result, caption=f"Zona resaltada: {zona_seleccionada}", use_container_width=True)
+        result = Image.composite(image, darkened, mask)
+        st.image(result, caption=f"Zona resaltada: {zona_seleccionada}", use_container_width=True)
 
-    # También recortar solo esa zona para descarga
-    cropped_image = image.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
+        # Recortar zona
+        cropped_image = image.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
 
-    img_byte_arr = io.BytesIO()
-    cropped_image.convert("RGB").save(img_byte_arr, format='PNG')
-    img_byte_arr = img_byte_arr.getvalue()
+        img_byte_arr = io.BytesIO()
+        cropped_image.convert("RGB").save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
 
-    st.download_button(
-        label="Descargar zona recortada",
-        data=img_byte_arr,
-        file_name=f"{zona_seleccionada.lower().replace(' ', '_')}.png",
-        mime="image/png"
-    )
-
+        st.download_button(
+            label=f"Descargar recorte ({uploaded_file.name})",
+            data=img_byte_arr,
+            file_name=f"recorte_{idx+1}_{zona_seleccionada.lower().replace(' ', '_')}.png",
+            mime="image/png"
+        )
