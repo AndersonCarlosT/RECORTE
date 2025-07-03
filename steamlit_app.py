@@ -5,7 +5,7 @@ import io
 # Diccionario de zonas predefinidas
 zonas_predefinidas = {
     "1 Fila": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
-    "2 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 515},
+    "2 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 510},
     "3 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
     "4 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
     "5 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
