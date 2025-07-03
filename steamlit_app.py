@@ -16,7 +16,7 @@ uploaded_file = st.file_uploader("Sube una imagen", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Imagen original", use_column_width=True)
+    st.image(image, caption="Imagen original", use_container_width=True)
 
     # Seleccionar zona predefinida
     zona_seleccionada = st.selectbox("Selecciona la zona a recortar", list(zonas.keys()))
