@@ -4,9 +4,11 @@ import io
 
 # Diccionario de zonas predefinidas
 zonas_predefinidas = {
-    "Zona 1": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
-    "Zona 2": {"left": 100, "top": 100, "right": 400, "bottom": 350},
-    "Zona 3": {"left": 10, "top": 10, "right": 200, "bottom": 200},
+    "1 Fila": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
+    "2 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 490},
+    "3 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
+    "4 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
+    "5 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
 }
 
 st.title("Visualizador de Zonas Recortadas")
