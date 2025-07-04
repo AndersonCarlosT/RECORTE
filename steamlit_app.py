@@ -29,7 +29,9 @@ if uploaded_files:
     draw = ImageDraw.Draw(mask)
     draw.rectangle((coords["left"], coords["top"], coords["right"], coords["bottom"]), fill=255)
     resaltada = Image.composite(muestra, darkened, mask)
-    st.image(resaltada, caption=f"Vista previa del recorte en: {uploaded_files[0].name}", use_container_width=True)
+
+    st.markdown("#### 🖼️ Imagen referencial (vista previa del recorte seleccionado)")
+    st.image(resaltada, caption=f"Vista previa en: {uploaded_files[0].name}", use_container_width=True)
 
     # Recortar todas las imágenes
     st.subheader("Descargas individuales")
