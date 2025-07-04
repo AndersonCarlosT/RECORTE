@@ -100,8 +100,8 @@ if uploaded_files:
     c.drawImage(ImageReader(img_bytes), inch, y_position - final_height, width=final_width, height=final_height)
     y_position -= final_height + 20  # espacio entre imágenes
 
-c.save()
-pdf_buffer.seek(0)
+    c.save()
+    pdf_buffer.seek(0)
 
     # Botón para descargar el PDF
     st.subheader("📄 Descargar PDF con los recortes")
