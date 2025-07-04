@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image, ImageDraw, ImageEnhance
 import io
+import zipfile
 
 # Zonas predefinidas
 zonas_predefinidas = {
@@ -11,40 +12,56 @@ zonas_predefinidas = {
     "5 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 578},
 }
 
-st.title("Recorte por zonas en múltiples imágenes")
+st.title("Recorte masivo de imágenes por zona predefinida")
 
 # Subir varias imágenes
 uploaded_files = st.file_uploader("Sube una o más imágenes", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if uploaded_files:
-    zona_seleccionada = st.selectbox("Selecciona una zona", list(zonas_predefinidas.keys()))
+    zona_seleccionada = st.selectbox("Selecciona una zona de recorte", list(zonas_predefinidas.keys()))
     coords = zonas_predefinidas[zona_seleccionada]
 
-    for idx, uploaded_file in enumerate(uploaded_files):
-        st.markdown(f"---\n### Imagen {idx + 1}: {uploaded_file.name}")
-        image = Image.open(uploaded_file).convert("RGBA")
+    # Mostrar solo una imagen de muestra (la primera)
+    muestra = Image.open(uploaded_files[0]).convert("RGBA")
+    enhancer = ImageEnhance.Brightness(muestra)
+    darkened = enhancer.enhance(0.3)
+    mask = Image.new("L", muestra.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.rectangle((coords["left"], coords["top"], coords["right"], coords["bottom"]), fill=255)
+    resaltada = Image.composite(muestra, darkened, mask)
+    st.image(resaltada, caption=f"Vista previa del recorte en: {uploaded_files[0].name}", use_container_width=True)
 
-        # Crear imagen con zona resaltada
-        enhancer = ImageEnhance.Brightness(image)
-        darkened = enhancer.enhance(0.3)
+    # Recortar todas las imágenes
+    st.subheader("Descargas individuales")
 
-        mask = Image.new("L", image.size, 0)
-        draw = ImageDraw.Draw(mask)
-        draw.rectangle((coords["left"], coords["top"], coords["right"], coords["bottom"]), fill=255)
+    recortes_zip = io.BytesIO()
+    with zipfile.ZipFile(recortes_zip, mode="w") as zipf:
+        for idx, uploaded_file in enumerate(uploaded_files):
+            img = Image.open(uploaded_file).convert("RGBA")
+            recorte = img.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
 
-        result = Image.composite(image, darkened, mask)
-        st.image(result, caption=f"Zona resaltada: {zona_seleccionada}", use_container_width=True)
+            # Guardar recorte para descarga individual
+            img_bytes = io.BytesIO()
+            recorte.convert("RGB").save(img_bytes, format='PNG')
+            img_bytes_value = img_bytes.getvalue()
 
-        # Recortar zona
-        cropped_image = image.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
+            # Mostrar botón de descarga individual
+            st.download_button(
+                label=f"Descargar recorte: {uploaded_file.name}",
+                data=img_bytes_value,
+                file_name=f"recorte_{idx+1}_{zona_seleccionada.lower().replace(' ', '_')}.png",
+                mime="image/png"
+            )
 
-        img_byte_arr = io.BytesIO()
-        cropped_image.convert("RGB").save(img_byte_arr, format='PNG')
-        img_byte_arr = img_byte_arr.getvalue()
+            # Agregar al ZIP
+            zipf.writestr(f"recorte_{idx+1}_{zona_seleccionada.lower().replace(' ', '_')}.png", img_bytes_value)
 
-        st.download_button(
-            label=f"Descargar recorte ({uploaded_file.name})",
-            data=img_byte_arr,
-            file_name=f"recorte_{idx+1}_{zona_seleccionada.lower().replace(' ', '_')}.png",
-            mime="image/png"
-        )
+    st.subheader("Descarga masiva (ZIP)")
+    recortes_zip.seek(0)
+    st.download_button(
+        label="Descargar todos los recortes (.zip)",
+        data=recortes_zip,
+        file_name="recortes.zip",
+        mime="application/zip"
+    )
+
