@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageEnhance
 import io
 import zipfile
+from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
