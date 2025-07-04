@@ -2,6 +2,7 @@ import streamlit as st
 from PIL import Image, ImageDraw, ImageEnhance
 import io
 import zipfile
+from reportlab.lib.units import inch
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
@@ -70,33 +71,37 @@ if uploaded_files:
     # Crear PDF con imágenes una debajo de otra
     pdf_buffer = io.BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=A4)
-    max_width = 500  # Máximo ancho para las imágenes en el PDF
-    margin_top = 800  # posición vertical inicial (A4 alto = 842)
+
+    # Dimensiones de la página en puntos
+    page_width, page_height = A4
+    y_position = page_height - inch  # 1 pulgada de margen arriba
 
     for recorte in recortes_para_pdf:
-        width, height = recorte.size
+        img_width, img_height = recorte.size
 
-        # Escalar si es necesario
-        if width > max_width:
-            ratio = max_width / width
-            width = max_width
-            height = int(height * ratio)
-            recorte = recorte.resize((width, height))
+        # Escalamos si el ancho supera el máximo permitido (por ejemplo 6.5 pulgadas)
+        max_width_points = 6.5 * inch  # ≈ 468 pts
+        scale_factor = min(1.0, max_width_points / img_width)
 
-        # Guardar imagen temporal en bytes
+        final_width = img_width * scale_factor
+        final_height = img_height * scale_factor
+
+        # Si no hay suficiente espacio en la página, pasar a la siguiente
+        if y_position - final_height < inch:
+            c.showPage()
+            y_position = page_height - inch
+
+        # Guardar imagen temporal
         img_bytes = io.BytesIO()
         recorte.save(img_bytes, format='PNG')
         img_bytes.seek(0)
 
-        if margin_top - height < 40:
-            c.showPage()
-            margin_top = 800
+    # Dibujar imagen con escala calculada
+    c.drawImage(ImageReader(img_bytes), inch, y_position - final_height, width=final_width, height=final_height)
+    y_position -= final_height + 20  # espacio entre imágenes
 
-        c.drawImage(ImageReader(img_bytes), 50, margin_top - height, width=width, height=height)
-        margin_top -= (height + 20)
-
-    c.save()
-    pdf_buffer.seek(0)
+c.save()
+pdf_buffer.seek(0)
 
     # Botón para descargar el PDF
     st.subheader("📄 Descargar PDF con los recortes")
