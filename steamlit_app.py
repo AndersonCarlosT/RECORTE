@@ -96,9 +96,9 @@ if uploaded_files:
         recorte.save(img_bytes, format='PNG')
         img_bytes.seek(0)
 
-    # Dibujar imagen con escala calculada
-    c.drawImage(ImageReader(img_bytes), inch, y_position - final_height, width=final_width, height=final_height)
-    y_position -= final_height + 20  # espacio entre imágenes
+        # Dibujar imagen con escala calculada
+        c.drawImage(ImageReader(img_bytes), inch, y_position - final_height, width=final_width, height=final_height)
+        y_position -= final_height + 20  # espacio entre imágenes
 
     c.save()
     pdf_buffer.seek(0)
