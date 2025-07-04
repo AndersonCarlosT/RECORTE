@@ -31,7 +31,7 @@ if uploaded_files:
     resaltada = Image.composite(muestra, darkened, mask)
 
     st.markdown("#### 🖼️ Imagen referencial (vista previa del recorte seleccionado)")
-    st.image(resaltada, caption=f"Vista previa en: {uploaded_files[0].name}", use_container_width=True)
+    st.image(resaltada, caption=f"Todas las imagenes se recortarán así", use_container_width=True)
 
     # Recortar todas las imágenes y agregarlas a un ZIP
     recortes_zip = io.BytesIO()
