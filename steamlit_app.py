@@ -5,11 +5,9 @@ import zipfile
 
 # Zonas predefinidas
 zonas_predefinidas = {
-    "1 Fila": {"left": 425, "top": 200, "right": 1882, "bottom": 485},
-    "2 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 510},
-    "3 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 533},
-    "4 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 555},
-    "5 Filas": {"left": 425, "top": 200, "right": 1882, "bottom": 578},
+    "Zona 1": {"left": 50, "top": 50, "right": 300, "bottom": 300},
+    "Zona 2": {"left": 100, "top": 100, "right": 400, "bottom": 350},
+    "Zona 3": {"left": 10, "top": 10, "right": 200, "bottom": 200},
 }
 
 st.title("Recorte masivo de imágenes por zona predefinida")
@@ -33,37 +31,28 @@ if uploaded_files:
     st.markdown("#### 🖼️ Imagen referencial (vista previa del recorte seleccionado)")
     st.image(resaltada, caption=f"Vista previa en: {uploaded_files[0].name}", use_container_width=True)
 
-    # Recortar todas las imágenes
-    st.subheader("Descargas individuales")
-
+    # Recortar todas las imágenes y agregarlas a un ZIP
     recortes_zip = io.BytesIO()
     with zipfile.ZipFile(recortes_zip, mode="w") as zipf:
         for idx, uploaded_file in enumerate(uploaded_files):
             img = Image.open(uploaded_file).convert("RGBA")
             recorte = img.crop((coords["left"], coords["top"], coords["right"], coords["bottom"]))
 
-            # Guardar recorte para descarga individual
+            # Guardar en bytes
             img_bytes = io.BytesIO()
             recorte.convert("RGB").save(img_bytes, format='PNG')
             img_bytes_value = img_bytes.getvalue()
 
-            # Mostrar botón de descarga individual
-            st.download_button(
-                label=f"Descargar recorte: {uploaded_file.name}",
-                data=img_bytes_value,
-                file_name=f"recorte_{idx+1}_{zona_seleccionada.lower().replace(' ', '_')}.png",
-                mime="image/png"
-            )
+            # Usar el nombre original para el archivo recortado
+            nombre_base = uploaded_file.name.rsplit(".", 1)[0]
+            zipf.writestr(f"{nombre_base}_recorte.png", img_bytes_value)
 
-            # Agregar al ZIP
-            zipf.writestr(f"recorte_{idx+1}_{zona_seleccionada.lower().replace(' ', '_')}.png", img_bytes_value)
-
-    st.subheader("Descarga masiva (ZIP)")
+    # Descargar el ZIP con todos los recortes
+    st.subheader("📦 Descargar todos los recortes")
     recortes_zip.seek(0)
     st.download_button(
-        label="Descargar todos los recortes (.zip)",
+        label="Descargar .zip",
         data=recortes_zip,
         file_name="recortes.zip",
         mime="application/zip"
     )
-
